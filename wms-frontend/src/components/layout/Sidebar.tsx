@@ -1,11 +1,12 @@
-import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Toolbar, Divider } from '@mui/material';
+import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Toolbar, Divider, Typography, Box } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import InputIcon from '@mui/icons-material/Input';
 import OutputIcon from '@mui/icons-material/Output';
-import SettingsIcon from '@mui/icons-material/Settings'; // Fixed Import
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate, useLocation } from 'react-router-dom';
+import logo from '../../assets/logo.png';
 
 const drawerWidth = 240;
 
@@ -33,9 +34,19 @@ export default function Sidebar() {
                 [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
             }}
         >
-            <Toolbar />
-            <Divider />
-            <List>
+            <Toolbar sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center', // Center content
+                flexDirection: 'column', // Stack if needed, or row
+                py: 2, // Padding vertical
+                bgcolor: 'black', // Brand color
+                color: 'white'
+            }}>
+
+            </Toolbar>
+            <Divider sx={{ borderColor: '#333' }} />
+            <List sx={{ bgcolor: '#f5f5f5', height: '100%' }}>
                 {menuItems.map((item) => (
                     <ListItemButton
                         key={item.text}

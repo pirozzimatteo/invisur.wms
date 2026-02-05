@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Paper, Typography, TextField, Button, Alert } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png';
 
 export default function Login() {
     // const theme = useTheme();
@@ -36,25 +37,32 @@ export default function Login() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                bgcolor: 'background.default'
+                bgcolor: '#F5F5F7', // Premium Light Grey
+                color: '#1D1D1F' // Apple-like Dark Grey
             }}
         >
             <Paper
-                elevation={3}
+                elevation={0} // Flat, modern look with border
                 sx={{
-                    p: 5,
+                    p: 6,
                     width: '100%',
-                    maxWidth: 400,
-                    borderRadius: 3,
-                    textAlign: 'center'
+                    maxWidth: 480,
+                    borderRadius: 5,
+                    textAlign: 'center',
+                    bgcolor: '#FFFFFF',
+                    border: '1px solid #E5E5E5',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.05)'
                 }}
             >
-                <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
-                    WMS Login
+                {/* Logo / Brand Placeholder */}
+                <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+                    <img src={logo} alt="INVISUR Logo" style={{ height: 300 }} />
+                </Box>
+
+                <Typography variant="h4" fontWeight="800" sx={{ mb: 1, letterSpacing: -0.5, color: '#1D1D1F' }}>
+                    Welcome Back
                 </Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mb: 4 }}>
-                    Enter your credentials to access the warehouse.
-                </Typography>
+
 
                 {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
@@ -62,19 +70,39 @@ export default function Login() {
                     <TextField
                         fullWidth
                         label="Username"
+                        variant="outlined"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         margin="normal"
                         autoFocus
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 3,
+                                backgroundColor: '#F5F5F7',
+                                '& fieldset': { border: 'none' },
+                                '&:hover fieldset': { border: '1px solid #E5E5E5' },
+                                '&.Mui-focused fieldset': { border: '1px solid #000' }, // Black focus
+                            }
+                        }}
                     />
                     <TextField
                         fullWidth
                         label="Password"
                         type="password"
+                        variant="outlined"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         margin="normal"
-                        sx={{ mb: 3 }}
+                        sx={{
+                            mb: 4,
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 3,
+                                backgroundColor: '#F5F5F7',
+                                '& fieldset': { border: 'none' },
+                                '&:hover fieldset': { border: '1px solid #E5E5E5' },
+                                '&.Mui-focused fieldset': { border: '1px solid #000' },
+                            }
+                        }}
                     />
                     <Button
                         fullWidth
@@ -82,18 +110,26 @@ export default function Login() {
                         variant="contained"
                         size="large"
                         sx={{
-                            py: 1.5,
+                            py: 2,
+                            borderRadius: 3,
                             fontWeight: 'bold',
-                            fontSize: '1rem'
+                            fontSize: '1rem',
+                            bgcolor: '#000000',
+                            color: 'white',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                            '&:hover': {
+                                bgcolor: '#333333',
+                                boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
+                            }
                         }}
                     >
                         Sign In
                     </Button>
                 </form>
 
-                <Box sx={{ mt: 4 }}>
-                    <Typography variant="caption" color="textSecondary">
-                        Mock Mode: Use <b>admin / admin</b>
+                <Box sx={{ mt: 6 }}>
+                    <Typography variant="caption" sx={{ color: '#86868B' }}>
+                        &copy; 2026 INVISUR CORP
                     </Typography>
                 </Box>
             </Paper>

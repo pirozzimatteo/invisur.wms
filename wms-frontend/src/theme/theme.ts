@@ -4,18 +4,18 @@ export const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#0F172A', // Slate 900 - Premium Dark Blue/Black
+      main: '#000000', // Black
     },
     secondary: {
-      main: '#3B82F6', // Blue 500 - Vibrant Accent
+      main: '#333333', // Dark Grey
     },
     background: {
-      default: '#F1F5F9', // Slate 100 - Soft Grey
+      default: '#F5F5F7', // Very light grey (Apple-esque)
       paper: '#FFFFFF',
     },
     text: {
-      primary: '#1E293B', // Slate 800
-      secondary: '#64748B', // Slate 500
+      primary: '#111111', // Almost Black
+      secondary: '#666666', // Grey
     },
     success: {
       main: '#10B981', // Emerald 500
