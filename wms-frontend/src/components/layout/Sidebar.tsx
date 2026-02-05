@@ -1,4 +1,4 @@
-import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Toolbar, Divider, Typography, Box } from '@mui/material';
+import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Toolbar, Divider } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
