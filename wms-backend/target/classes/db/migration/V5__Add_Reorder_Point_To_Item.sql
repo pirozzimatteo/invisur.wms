@@ -1,0 +1,1 @@
+ALTER TABLE item ADD COLUMN reorder_point DECIMAL(10,2) DEFAULT 10;

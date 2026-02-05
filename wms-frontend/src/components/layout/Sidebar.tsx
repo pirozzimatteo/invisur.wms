@@ -6,7 +6,6 @@ import InputIcon from '@mui/icons-material/Input';
 import OutputIcon from '@mui/icons-material/Output';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate, useLocation } from 'react-router-dom';
-import logo from '../../assets/logo.png';
 
 const drawerWidth = 240;
 
@@ -43,13 +42,6 @@ export default function Sidebar() {
                 bgcolor: 'black', // Brand color
                 color: 'white'
             }}>
-                {/* Logo Area */}
-                <Box sx={{ mb: 1, mt: 1 }}>
-                    <img src={logo} alt="INVISUR" style={{ height: 60 }} />
-                </Box>
-                <Typography variant="caption" sx={{ letterSpacing: 0.5, color: '#aaa', fontSize: '0.6rem' }}>
-                    THE FUTURE STARTS TODAY
-                </Typography>
             </Toolbar>
             <Divider sx={{ borderColor: '#333' }} />
             <List sx={{ bgcolor: '#f5f5f5', height: '100%' }}>
