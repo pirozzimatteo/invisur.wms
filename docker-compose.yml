@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  wms-db:
+    image: postgres:15-alpine
+    container_name: wms-db
+    environment:
+      POSTGRES_DB: wms_db
+      POSTGRES_USER: wms_user
+      POSTGRES_PASSWORD: wms_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - wms-net
+
+  wms-backend:
+    build: ./wms-backend
+    container_name: wms-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - wms-db
+    networks:
+      - wms-net
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://wms-db:5432/wms_db
+      SPRING_DATASOURCE_USERNAME: wms_user
+      SPRING_DATASOURCE_PASSWORD: wms_password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  # wms-frontend:
+  #   build: ./wms-frontend
+  #   ports:
+  #     - "3000:80"
+  #   networks:
+  #     - wms-net
+
+volumes:
+  postgres_data:
+
+networks:
+  wms-net:
