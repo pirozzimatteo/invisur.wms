@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
     Typography, Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Button,
-    Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, Alert
+    Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, Alert, Snackbar
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -35,12 +35,28 @@ export default function Outbound() {
         refetchInterval: 5000 // Poll for updates
     });
 
+    const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
+
+    const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
+
+    const showMessage = (message: string, severity: 'success' | 'error' = 'success') => {
+        setSnackbar({ open: true, message, severity });
+    };
+
     const confirmTaskMutation = useMutation({
         mutationFn: OutboundService.confirmTask,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['picking-tasks'] });
             queryClient.invalidateQueries({ queryKey: ['outbound-orders'] });
             queryClient.invalidateQueries({ queryKey: ['inventory'] });
+            showMessage('Prelievo confermato', 'success');
+        },
+        onError: (error: any) => {
+            showMessage(error.response?.data?.message || 'Errore nella conferma del prelievo', 'error');
         }
     });
 
@@ -53,9 +69,10 @@ export default function Outbound() {
             setNewOrderCustomer('');
             setNewOrderItems([]);
             setCreateError(null);
+            showMessage('Ordine creato con successo', 'success');
         },
         onError: (error: any) => {
-            setCreateError(error.response?.data?.message || 'Failed to create order');
+            setCreateError(error.response?.data?.message || 'Impossibile creare l\'ordine');
         }
     });
 
@@ -63,6 +80,10 @@ export default function Outbound() {
         mutationFn: OutboundService.shipOrder,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['outbound-orders'] });
+            showMessage('Ordine spedito', 'success');
+        },
+        onError: (error: any) => {
+            showMessage(error.response?.data?.message || 'Errore nella spedizione dell\'ordine', 'error');
         }
     });
 
@@ -99,20 +120,20 @@ export default function Outbound() {
     return (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h1">Outbound Operations</Typography>
-                <Button variant="contained" onClick={() => { setOpenCreateDialog(true); setCreateError(null); }}>Create Order</Button>
+                <Typography variant="h1">Operazioni in Uscita</Typography>
+                <Button variant="contained" onClick={() => { setOpenCreateDialog(true); setCreateError(null); }}>Crea Ordine</Button>
             </Box>
 
-            <Typography variant="h2" gutterBottom>Active Orders</Typography>
+            <Typography variant="h2" gutterBottom>Ordini Attivi</Typography>
             <TableContainer component={Paper} sx={{ mb: 4 }}>
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Order Ref</TableCell>
-                            <TableCell>Customer</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell>Created At</TableCell>
-                            <TableCell>Actions</TableCell>
+                            <TableCell>Rif. Ordine</TableCell>
+                            <TableCell>Cliente</TableCell>
+                            <TableCell>Stato</TableCell>
+                            <TableCell>Creato Il</TableCell>
+                            <TableCell>Azioni</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -140,31 +161,31 @@ export default function Outbound() {
                                         disabled={order.status !== 'PICKED' || shipOrderMutation.isPending}
                                         onClick={() => handleShip(order.id)}
                                     >
-                                        Ship
+                                        Spedisci
                                     </Button>
                                 </TableCell>
                             </TableRow>
                         ))}
                         {(!orders || orders.length === 0) && (
                             <TableRow>
-                                <TableCell colSpan={5} align="center">No active orders</TableCell>
+                                <TableCell colSpan={5} align="center">Nessun ordine attivo</TableCell>
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
             </TableContainer>
 
-            <Typography variant="h2" gutterBottom>Picking Tasks</Typography>
+            <Typography variant="h2" gutterBottom>Attività di Prelievo</Typography>
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Task ID</TableCell>
-                            <TableCell>Order Ref</TableCell>
-                            <TableCell>Item</TableCell>
-                            <TableCell>Location</TableCell>
-                            <TableCell>Qty</TableCell>
-                            <TableCell>Action</TableCell>
+                            <TableCell>ID Attività</TableCell>
+                            <TableCell>Rif. Ordine</TableCell>
+                            <TableCell>Articolo</TableCell>
+                            <TableCell>Posizione</TableCell>
+                            <TableCell>Qta</TableCell>
+                            <TableCell>Azione</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -183,14 +204,14 @@ export default function Outbound() {
                                         onClick={() => handleConfirm(task.id)}
                                         disabled={confirmTaskMutation.isPending}
                                     >
-                                        Confirm Pick
+                                        Conferma Prelievo
                                     </Button>
                                 </TableCell>
                             </TableRow>
                         ))}
                         {(!tasks || tasks.length === 0) && (
                             <TableRow>
-                                <TableCell colSpan={6} align="center">No pending picking tasks</TableCell>
+                                <TableCell colSpan={6} align="center">Nessuna attività di prelievo in sospeso</TableCell>
                             </TableRow>
                         )}
                     </TableBody>
@@ -198,7 +219,7 @@ export default function Outbound() {
             </TableContainer>
 
             <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} maxWidth="md" fullWidth>
-                <DialogTitle>Create Outbound Order</DialogTitle>
+                <DialogTitle>Crea Ordine in Uscita</DialogTitle>
                 <DialogContent>
                     <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
                         {createError && (
@@ -207,13 +228,13 @@ export default function Outbound() {
                             </Alert>
                         )}
                         <TextField
-                            label="Customer Name"
+                            label="Nome Cliente"
                             fullWidth
                             value={newOrderCustomer}
                             onChange={(e) => setNewOrderCustomer(e.target.value)}
                         />
 
-                        <Typography variant="h6">Items</Typography>
+                        <Typography variant="h6">Articoli</Typography>
                         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                             <Box sx={{ flexGrow: 1 }}>
                                 <ItemAutocomplete
@@ -223,11 +244,11 @@ export default function Outbound() {
                                         // Reset selection when item changes
                                         setTempSourceLocation('');
                                     }}
-                                    label="Item"
+                                    label="Articolo"
                                 />
                             </Box>
                             <TextField
-                                label="Qty"
+                                label="Qta"
                                 type="number"
                                 sx={{ width: 100 }}
                                 value={tempQty}
@@ -239,7 +260,7 @@ export default function Outbound() {
                                 onClick={handleAddItem}
                                 disabled={!tempItemCode || !tempQty}
                             >
-                                Add
+                                Aggiungi
                             </Button>
                         </Box>
 
@@ -256,9 +277,9 @@ export default function Outbound() {
                             <Table size="small">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Item</TableCell>
-                                        <TableCell>Quantity</TableCell>
-                                        <TableCell>From Location</TableCell>
+                                        <TableCell>Articolo</TableCell>
+                                        <TableCell>Quantità</TableCell>
+                                        <TableCell>Da Posizione</TableCell>
                                         <TableCell width={50}></TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -267,7 +288,7 @@ export default function Outbound() {
                                         <TableRow key={index}>
                                             <TableCell>{item.itemCode}</TableCell>
                                             <TableCell>{item.quantity}</TableCell>
-                                            <TableCell>{item.sourceLocationCode || 'Any'}</TableCell>
+                                            <TableCell>{item.sourceLocationCode || 'Qualsiasi'}</TableCell>
                                             <TableCell>
                                                 <IconButton size="small" color="error" onClick={() => handleRemoveItem(index)}>
                                                     <DeleteIcon />
@@ -277,7 +298,7 @@ export default function Outbound() {
                                     ))}
                                     {newOrderItems.length === 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={4} align="center">No items added</TableCell>
+                                            <TableCell colSpan={4} align="center">Nessun articolo aggiunto</TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>
@@ -286,16 +307,27 @@ export default function Outbound() {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenCreateDialog(false)}>Cancel</Button>
+                    <Button onClick={() => setOpenCreateDialog(false)}>Annulla</Button>
                     <Button
                         variant="contained"
                         onClick={handleSubmitOrder}
                         disabled={!newOrderCustomer || newOrderItems.length === 0 || createOrderMutation.isPending}
                     >
-                        Create Order
+                        Crea Ordine
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }
@@ -308,19 +340,19 @@ function StockAvailabilityTable({ itemCode, onSelectLocation, selectedLocation }
         enabled: !!itemCode
     });
 
-    if (isLoading) return <Typography variant="caption">Checking stock...</Typography>;
-    if (!stocks || stocks.length === 0) return <Typography variant="caption" color="error">No stock available</Typography>;
+    if (isLoading) return <Typography variant="caption">Controllo giacenza...</Typography>;
+    if (!stocks || stocks.length === 0) return <Typography variant="caption" color="error">Nessuna giacenza disponibile</Typography>;
 
     return (
         <Box sx={{ mt: 1, mb: 2 }}>
-            <Typography variant="subtitle2">Available Stock (Select source):</Typography>
+            <Typography variant="subtitle2">Giacenza Disponibile (Seleziona origine):</Typography>
             <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 150 }}>
                 <Table size="small" stickyHeader>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Location</TableCell>
-                            <TableCell align="right">Qty</TableCell>
-                            <TableCell align="center">Action</TableCell>
+                            <TableCell>Posizione</TableCell>
+                            <TableCell align="right">Qta</TableCell>
+                            <TableCell align="center">Azione</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -334,7 +366,7 @@ function StockAvailabilityTable({ itemCode, onSelectLocation, selectedLocation }
                                         variant={stock.locationCode === selectedLocation ? "contained" : "outlined"}
                                         onClick={() => onSelectLocation(stock.locationCode)}
                                     >
-                                        {stock.locationCode === selectedLocation ? "Selected" : "Select"}
+                                        {stock.locationCode === selectedLocation ? "Selezionato" : "Seleziona"}
                                     </Button>
                                 </TableCell>
                             </TableRow>

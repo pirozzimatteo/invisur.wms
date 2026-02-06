@@ -23,7 +23,7 @@ public class LocationServiceImpl implements LocationService {
     @Transactional
     public Location createLocation(Location location) {
         if (locationRepository.existsByCode(location.getCode())) {
-            throw new IllegalArgumentException("Location code already exists: " + location.getCode());
+            throw new IllegalArgumentException("Codice posizione già esistente: " + location.getCode());
         }
         WarehouseLocationEntity entity = locationMapper.toEntity(location);
 
@@ -31,7 +31,8 @@ public class LocationServiceImpl implements LocationService {
         if (location.getParentId() != null) {
             WarehouseLocationEntity parent = locationRepository.findById(location.getParentId())
                     .orElseThrow(
-                            () -> new IllegalArgumentException("Parent location not found: " + location.getParentId()));
+                            () -> new IllegalArgumentException(
+                                    "Posizione genitore non trovata: " + location.getParentId()));
             entity.setParent(parent);
         }
 
@@ -47,7 +48,7 @@ public class LocationServiceImpl implements LocationService {
     @Transactional
     public Location updateLocation(UUID id, Location location) {
         WarehouseLocationEntity entity = locationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Location not found with ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Posizione non trovata con ID: " + id));
 
         // Update fields (not code/type/parentId usually)
         // Allowing Code update if unique? No, safe to keep immutable for now or
@@ -62,7 +63,7 @@ public class LocationServiceImpl implements LocationService {
         // If code update happens:
         if (!entity.getCode().equals(location.getCode())) {
             if (locationRepository.existsByCode(location.getCode())) {
-                throw new IllegalArgumentException("Location code already exists: " + location.getCode());
+                throw new IllegalArgumentException("Codice posizione già esistente: " + location.getCode());
             }
             entity.setCode(location.getCode());
         }
@@ -84,7 +85,7 @@ public class LocationServiceImpl implements LocationService {
     public Location findById(UUID id) {
         return locationRepository.findById(id)
                 .map(locationMapper::toDomain)
-                .orElseThrow(() -> new RuntimeException("Location not found with ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Posizione non trovata con ID: " + id));
     }
 
     @Override

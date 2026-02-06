@@ -62,7 +62,7 @@ public class OutboundServiceImpl implements OutboundService {
         for (com.wms.core.adapter.in.web.dto.OutboundDTO.OrderLineItem line : request.getItems()) {
             // Find item
             var item = itemRepository.findByInternalCode(line.getItemCode())
-                    .orElseThrow(() -> new IllegalArgumentException("Item not found: " + line.getItemCode()));
+                    .orElseThrow(() -> new IllegalArgumentException("Articolo non trovato: " + line.getItemCode()));
 
             // Find available stock (Simple logic: take any stock)
             // In real world: check FIFO, batch, etc.
@@ -96,18 +96,19 @@ public class OutboundServiceImpl implements OutboundService {
             BigDecimal effectiveAvailable = totalPhysical.subtract(BigDecimal.valueOf(reservedQty));
 
             if (effectiveAvailable.compareTo(line.getQuantity()) < 0) {
-                throw new IllegalArgumentException("Insufficient effective stock for item " + line.getItemCode()
-                        + ". Physical: " + totalPhysical
-                        + ", Reserved: " + reservedQty
-                        + ", Available: " + effectiveAvailable
-                        + ", Requested: " + line.getQuantity());
+                throw new IllegalArgumentException("Giacenza effettiva insufficiente per articolo " + line.getItemCode()
+                        + ". Fisica: " + totalPhysical
+                        + ", Riservata: " + reservedQty
+                        + ", Disponibile: " + effectiveAvailable
+                        + ", Richiesta: " + line.getQuantity());
             }
             // -------------------------------
 
             if (line.getSourceLocationCode() != null && !line.getSourceLocationCode().isEmpty()
                     && availableStocks.isEmpty()) {
-                throw new IllegalArgumentException("No stock found for item " + line.getItemCode() + " in location "
-                        + line.getSourceLocationCode());
+                throw new IllegalArgumentException(
+                        "Nessuna giacenza trovata per articolo " + line.getItemCode() + " in posizione "
+                                + line.getSourceLocationCode());
             }
 
             BigDecimal remainingQty = line.getQuantity();
@@ -150,10 +151,10 @@ public class OutboundServiceImpl implements OutboundService {
     @Transactional
     public void confirmTask(UUID taskId) {
         PickingTaskEntity task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+                .orElseThrow(() -> new IllegalArgumentException("Attività non trovata: " + taskId));
 
         if (task.getStatus() != PickingTaskEntity.TaskStatus.PENDING) {
-            throw new IllegalStateException("Task already processed");
+            throw new IllegalStateException("Attività già elaborata");
         }
 
         // 1. Decrement Stock at Source Location
@@ -169,11 +170,11 @@ public class OutboundServiceImpl implements OutboundService {
         StockEntity stock = stockRepository.findByLocationId(task.getSourceLocation().getId()).stream()
                 .filter(s -> s.getItem().getId().equals(task.getItem().getId()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Stock not found in location for picking"));
+                .orElseThrow(() -> new IllegalStateException("Giacenza non trovata nella posizione di prelievo"));
 
         BigDecimal pickQty = BigDecimal.valueOf(task.getTargetQuantity());
         if (stock.getQuantity().compareTo(pickQty) < 0) {
-            throw new IllegalStateException("Insufficient stock to pick");
+            throw new IllegalStateException("Giacenza insufficiente per il prelievo");
         }
 
         stock.setQuantity(stock.getQuantity().subtract(pickQty));
@@ -243,10 +244,10 @@ public class OutboundServiceImpl implements OutboundService {
     @Transactional
     public void shipOrder(UUID orderId) {
         OutboundOrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+                .orElseThrow(() -> new IllegalArgumentException("Ordine non trovato: " + orderId));
 
         if (order.getStatus() != OutboundOrderEntity.OrderStatus.PICKED) {
-            throw new IllegalStateException("Order cannot be shipped. Current status: " + order.getStatus());
+            throw new IllegalStateException("L'ordine non può essere spedito. Stato attuale: " + order.getStatus());
         }
 
         order.setStatus(OutboundOrderEntity.OrderStatus.SHIPPED);

@@ -18,4 +18,7 @@ public interface StockRepository extends JpaRepository<StockEntity, UUID> {
 
     @org.springframework.data.jpa.repository.Query("SELECT COUNT(i) FROM ItemEntity i WHERE (SELECT COALESCE(SUM(s.quantity), 0) FROM StockEntity s WHERE s.item = i) < COALESCE(i.reorderPoint, 10)")
     long countLowStockItems();
+
+    @org.springframework.data.jpa.repository.Query("SELECT i FROM ItemEntity i WHERE (SELECT COALESCE(SUM(s.quantity), 0) FROM StockEntity s WHERE s.item = i) < COALESCE(i.reorderPoint, 10)")
+    List<com.wms.core.adapter.out.persistence.entity.ItemEntity> findLowStockItems();
 }

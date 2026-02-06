@@ -40,7 +40,14 @@ public class ItemController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/low-stock")
+    public List<ItemDTO.Response> getLowStockItems() {
+        return itemService.getLowStockItems().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id:[a-fA-F0-9-]{36}}")
     public ItemDTO.Response getItem(@PathVariable UUID id) {
         return mapToResponse(itemService.findById(id));
     }
@@ -64,4 +71,16 @@ public class ItemController {
                 .updatedAt(domain.getUpdatedAt())
                 .build();
     }
+
+    @PutMapping("/{id:[a-fA-F0-9-]{36}}")
+    public ItemDTO.Response updateItem(@PathVariable UUID id, @RequestBody ItemDTO.UpdateRequest request) {
+        Item domain = Item.builder()
+                .description(request.getDescription())
+                .category(request.getCategory())
+                .unitOfMeasure(request.getUnitOfMeasure())
+                .reorderPoint(request.getReorderPoint())
+                .build();
+        return mapToResponse(itemService.updateItem(id, domain));
+    }
+
 }

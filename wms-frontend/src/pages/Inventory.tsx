@@ -41,20 +41,20 @@ function InventoryRow({ row }: { row: any }) {
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 1 }}>
                             <Typography variant="h6" gutterBottom component="div">
-                                Location Details
+                                Dettagli Posizione
                             </Typography>
                             <Table size="small" aria-label="purchases">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Location</TableCell>
-                                        <TableCell align="right">Quantity</TableCell>
-                                        <TableCell>Status</TableCell>
+                                        <TableCell>Posizione</TableCell>
+                                        <TableCell align="right">Quantità</TableCell>
+                                        <TableCell>Stato</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {isLoading ? (
                                         <TableRow>
-                                            <TableCell colSpan={3}>Loading details...</TableCell>
+                                            <TableCell colSpan={3}>Caricamento dettagli...</TableCell>
                                         </TableRow>
                                     ) : details && details.length > 0 ? (
                                         details.map((detail: any) => (
@@ -68,7 +68,7 @@ function InventoryRow({ row }: { row: any }) {
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={3}>No details available.</TableCell>
+                                            <TableCell colSpan={3}>Nessun dettaglio disponibile.</TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>
@@ -89,16 +89,16 @@ export default function Inventory() {
 
     return (
         <Box>
-            <Typography variant="h1" gutterBottom>Inventory Summary</Typography>
+            <Typography variant="h1" gutterBottom>Riepilogo Inventario</Typography>
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
                         <TableRow>
                             <TableCell width={50} />
-                            <TableCell>Item Code</TableCell>
-                            <TableCell>Description</TableCell>
-                            <TableCell align="right">Total Qty</TableCell>
-                            <TableCell align="right">Locations</TableCell>
+                            <TableCell>Codice Articolo</TableCell>
+                            <TableCell>Descrizione</TableCell>
+                            <TableCell align="right">Qta Totale</TableCell>
+                            <TableCell align="right">Posizioni</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>

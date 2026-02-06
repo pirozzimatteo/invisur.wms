@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Typography, Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, CircularProgress, IconButton, Dialog, DialogTitle, DialogContent, Button, DialogActions, TextField, Tooltip, Collapse, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { Typography, Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, CircularProgress, IconButton, Dialog, DialogTitle, DialogContent, Button, DialogActions, TextField, Tooltip, Collapse, MenuItem, Select, FormControl, InputLabel, Snackbar, Alert } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -91,17 +91,17 @@ const Row = ({ row, onEdit, onView, onAddChild }: {
                     {row.currentVolume || 0} / {row.capacityVolume || '∞'}
                 </TableCell>
                 <TableCell align="center">
-                    <Tooltip title="View Contents">
+                    <Tooltip title="Visualizza Contenuto">
                         <IconButton onClick={() => onView(row.id)} color="primary" size="small">
                             <VisibilityIcon />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title="Edit">
+                    <Tooltip title="Modifica">
                         <IconButton onClick={() => onEdit(row)} color="default" size="small">
                             <EditIcon />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title="Add Sub-Location">
+                    <Tooltip title="Aggiungi Sotto-Posizione">
                         <IconButton onClick={() => onAddChild(row)} color="secondary" size="small">
                             <AddIcon />
                         </IconButton>
@@ -150,6 +150,18 @@ export default function Locations() {
     const [parentId, setParentId] = useState<string>('');
     const [capacity, setCapacity] = useState('');
 
+    const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
+
+    const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
+
+    const showMessage = (message: string, severity: 'success' | 'error' = 'success') => {
+        setSnackbar({ open: true, message, severity });
+    };
+
     const treeData = useMemo(() => {
         if (!locations) return [];
         return buildHierarchy(locations);
@@ -160,6 +172,10 @@ export default function Locations() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['locations'] });
             handleCloseDialog();
+            showMessage('Posizione creata con successo', 'success');
+        },
+        onError: (error: any) => {
+            showMessage(error.response?.data?.message || 'Errore nella creazione della posizione', 'error');
         }
     });
 
@@ -168,6 +184,10 @@ export default function Locations() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['locations'] });
             handleCloseDialog();
+            showMessage('Posizione aggiornata con successo', 'success');
+        },
+        onError: (error: any) => {
+            showMessage(error.response?.data?.message || 'Errore nell\'aggiornamento della posizione', 'error');
         }
     });
 
@@ -250,9 +270,9 @@ export default function Locations() {
     return (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h1" gutterBottom>Warehouse Map</Typography>
+                <Typography variant="h1" gutterBottom>Mappa Magazzino</Typography>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenAdd()}>
-                    Add Root Location
+                    Aggiungi Posizione Radice
                 </Button>
             </Box>
 
@@ -260,11 +280,11 @@ export default function Locations() {
                 <Table aria-label="collapsible table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>Location Hierarchy</TableCell>
-                            <TableCell>Type</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell align="right">Usage (Vol/Cap)</TableCell>
-                            <TableCell align="center">Action</TableCell>
+                            <TableCell>Gerarchia Posizioni</TableCell>
+                            <TableCell>Tipo</TableCell>
+                            <TableCell>Stato</TableCell>
+                            <TableCell align="right">Utilizzo (Vol/Cap)</TableCell>
+                            <TableCell align="center">Azione</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -283,7 +303,7 @@ export default function Locations() {
 
             {/* Content Dialog */}
             <Dialog open={!!selectedLocation} onClose={() => setSelectedLocation(null)} maxWidth="md" fullWidth>
-                <DialogTitle>Location Contents</DialogTitle>
+                <DialogTitle>Contenuto Posizione</DialogTitle>
                 <DialogContent>
                     {loadingContents ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}><CircularProgress /></Box>
@@ -292,9 +312,9 @@ export default function Locations() {
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Item Code</TableCell>
-                                        <TableCell align="right">Quantity</TableCell>
-                                        <TableCell>Status</TableCell>
+                                        <TableCell>Codice Articolo</TableCell>
+                                        <TableCell align="right">Quantità</TableCell>
+                                        <TableCell>Stato</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -307,7 +327,7 @@ export default function Locations() {
                                     ))}
                                     {locationContents.length === 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={3} align="center">Empty Location</TableCell>
+                                            <TableCell colSpan={3} align="center">Posizione Vuota</TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>
@@ -316,55 +336,55 @@ export default function Locations() {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setSelectedLocation(null)}>Close</Button>
+                    <Button onClick={() => setSelectedLocation(null)}>Chiudi</Button>
                 </DialogActions>
             </Dialog>
 
             {/* Add/Edit Dialog */}
             <Dialog open={openDialog} onClose={handleCloseDialog}>
-                <DialogTitle>{isEditMode ? 'Edit Location' : 'Add Location'}</DialogTitle>
+                <DialogTitle>{isEditMode ? 'Modifica Posizione' : 'Aggiungi Posizione'}</DialogTitle>
                 <DialogContent>
                     <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 350 }}>
                         <TextField
-                            label="Code"
+                            label="Codice"
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
-                            helperText="Unique identifier e.g. AISLE-A-01"
+                            helperText="Identificatore univoco es. AISLE-A-01"
                             fullWidth
                             disabled={isEditMode}
                         />
                         <TextField
-                            label="Description"
+                            label="Descrizione"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             fullWidth
                         />
 
                         <FormControl fullWidth>
-                            <InputLabel>Type</InputLabel>
+                            <InputLabel>Tipo</InputLabel>
                             <Select
                                 value={type}
-                                label="Type"
+                                label="Tipo"
                                 onChange={(e) => setType(e.target.value)}
                             >
-                                <MenuItem value="SITE">Site</MenuItem>
-                                <MenuItem value="AREA">Area (Zone)</MenuItem>
-                                <MenuItem value="AISLE">Aisle</MenuItem>
-                                <MenuItem value="RACK">Rack</MenuItem>
-                                <MenuItem value="LEVEL">Level</MenuItem>
-                                <MenuItem value="BIN">Bin</MenuItem>
+                                <MenuItem value="SITE">Sito</MenuItem>
+                                <MenuItem value="AREA">Area (Zona)</MenuItem>
+                                <MenuItem value="AISLE">Corsia</MenuItem>
+                                <MenuItem value="RACK">Scaffale</MenuItem>
+                                <MenuItem value="LEVEL">Livello</MenuItem>
+                                <MenuItem value="BIN">Cella</MenuItem>
                             </Select>
                         </FormControl>
 
                         <FormControl fullWidth>
-                            <InputLabel>Parent Location</InputLabel>
+                            <InputLabel>Posizione Genitore</InputLabel>
                             <Select
                                 value={parentId}
-                                label="Parent Location"
+                                label="Posizione Genitore"
                                 onChange={(e) => setParentId(e.target.value)}
                                 displayEmpty
                             >
-                                <MenuItem value=""><em>None (Root)</em></MenuItem>
+                                <MenuItem value=""><em>Nessuna (Radice)</em></MenuItem>
                                 {locations?.map((l: Location) => (
                                     <MenuItem key={l.id} value={l.id}>
                                         {l.code} ({l.type})
@@ -374,7 +394,7 @@ export default function Locations() {
                         </FormControl>
 
                         <TextField
-                            label="Capacity Volume"
+                            label="Volume Capacità"
                             value={capacity}
                             onChange={(e) => setCapacity(e.target.value)}
                             type="number"
@@ -383,12 +403,23 @@ export default function Locations() {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={handleCloseDialog}>Annulla</Button>
                     <Button variant="contained" onClick={handleSave} disabled={!code}>
-                        {isEditMode ? 'Save' : 'Create'}
+                        {isEditMode ? 'Salva' : 'Crea'}
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
+        </Box >
     );
 }

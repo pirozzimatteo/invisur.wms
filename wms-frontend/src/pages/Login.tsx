@@ -17,16 +17,16 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
-        // Mock Credentials Check
-        if (username === 'admin' && password === 'admin') {
-            login(username);
+        try {
+            await login(username, password);
             navigate(from, { replace: true });
-        } else {
-            setError('Invalid credentials (try admin/admin)');
+        } catch (err) {
+            console.error(err);
+            setError('Accesso fallito. Controlla le tue credenziali.');
         }
     };
 
@@ -60,7 +60,7 @@ export default function Login() {
                 </Box>
 
                 <Typography variant="h4" fontWeight="800" sx={{ mb: 1, letterSpacing: -0.5, color: '#1D1D1F' }}>
-                    Welcome Back
+                    Bentornato
                 </Typography>
 
 
@@ -69,7 +69,7 @@ export default function Login() {
                 <form onSubmit={handleLogin}>
                     <TextField
                         fullWidth
-                        label="Username"
+                        label="Nome Utente"
                         variant="outlined"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
@@ -123,7 +123,7 @@ export default function Login() {
                             }
                         }}
                     >
-                        Sign In
+                        Accedi
                     </Button>
                 </form>
 

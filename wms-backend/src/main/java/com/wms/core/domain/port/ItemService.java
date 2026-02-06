@@ -7,7 +7,11 @@ import java.util.UUID;
 public interface ItemService {
     Item createItem(Item item);
 
+    Item updateItem(UUID id, Item item);
+
     List<Item> findAll();
+
+    List<Item> getLowStockItems();
 
     Item findById(UUID id);
 

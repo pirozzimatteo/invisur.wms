@@ -34,6 +34,11 @@ Prima di poter gestire la merce, devi dire al sistema quali prodotti tratti.
     *   **Descrizione**: Nome del prodotto (es. Trapano Elettrico).
     *   **Reorder Point**: Molto importante! Inserisci il numero minimo di pezzi che vuoi sempre avere (es. 10). Se scendi sotto questo numero, la Dashboard ti avviserà.
 5.  Clicca **Salva**.
+6.  **Modifica Articolo**:
+    *   Nella lista articoli, clicca l'icona della **matita** (Modifica) accanto a un prodotto.
+    *   Si aprirà una finestra più ampia dove puoi cambiare facilmente descrizione, categoria, unità di misura e punto di riordino.
+    *   Il codice interno (SKU) non può essere modificato per garantire la coerenza dei dati.
+    *   I campi sono organizzati in una griglia chiara per facilitare la lettura e l'inserimento.
 
 ---
 

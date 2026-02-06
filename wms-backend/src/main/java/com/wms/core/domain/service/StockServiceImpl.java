@@ -34,10 +34,10 @@ public class StockServiceImpl implements StockService {
     @Transactional
     public Stock createStock(UUID itemId, UUID locationId, BigDecimal quantity, String batchNumber) {
         var itemEntity = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("Item not found: " + itemId));
+                .orElseThrow(() -> new IllegalArgumentException("Articolo non trovato: " + itemId));
 
         var locationEntity = locationRepository.findById(locationId)
-                .orElseThrow(() -> new IllegalArgumentException("Location not found: " + locationId));
+                .orElseThrow(() -> new IllegalArgumentException("Posizione non trovata: " + locationId));
 
         StockEntity stockEntity = new StockEntity();
         stockEntity.setItem(itemEntity);
@@ -80,8 +80,8 @@ public class StockServiceImpl implements StockService {
         if (isAdding) {
             BigDecimal newVolume = location.getCurrentVolume().add(totalVolume);
             if (location.getCapacityVolume() != null && newVolume.compareTo(location.getCapacityVolume()) > 0) {
-                throw new IllegalArgumentException("Location capacity exceeded. Max: " + location.getCapacityVolume()
-                        + ", Current: " + location.getCurrentVolume() + ", Adding: " + totalVolume);
+                throw new IllegalArgumentException("Capacità posizione superata. Max: " + location.getCapacityVolume()
+                        + ", Attuale: " + location.getCurrentVolume() + ", Aggiunto: " + totalVolume);
             }
             location.setCurrentVolume(newVolume);
         } else {
@@ -111,16 +111,18 @@ public class StockServiceImpl implements StockService {
             BigDecimal quantity) {
         // Resolve entities
         var item = itemRepository.findByInternalCode(itemCode)
-                .orElseThrow(() -> new IllegalArgumentException("Item not found: " + itemCode));
+                .orElseThrow(() -> new IllegalArgumentException("Articolo non trovato: " + itemCode));
 
         // Find source stock
         // Heuristic: Find all stock for this item in this location
         // NOTE: We need location ID first
         var sourceLoc = locationRepository.findByCode(sourceLocationCode)
-                .orElseThrow(() -> new IllegalArgumentException("Source Location not found: " + sourceLocationCode));
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Posizione origine non trovata: " + sourceLocationCode));
 
         var targetLoc = locationRepository.findByCode(targetLocationCode)
-                .orElseThrow(() -> new IllegalArgumentException("Target Location not found: " + targetLocationCode));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Posizione destinazione non trovata: " + targetLocationCode));
 
         // Find stock records in source location
         List<StockEntity> stocks = stockRepository.findByLocationId(sourceLoc.getId());
@@ -132,7 +134,8 @@ public class StockServiceImpl implements StockService {
                 .collect(Collectors.toList());
 
         if (sourceStocks.isEmpty()) {
-            throw new IllegalArgumentException("No stock found for item " + itemCode + " in " + sourceLocationCode);
+            throw new IllegalArgumentException(
+                    "Nessuna giacenza trovata per articolo " + itemCode + " in " + sourceLocationCode);
         }
 
         BigDecimal totalAvailable = sourceStocks.stream()
@@ -141,7 +144,7 @@ public class StockServiceImpl implements StockService {
 
         if (totalAvailable.compareTo(quantity) < 0) {
             throw new IllegalArgumentException(
-                    "Insufficient stock. Available: " + totalAvailable + ", Requested: " + quantity);
+                    "Giacenza insufficiente. Disponibile: " + totalAvailable + ", Richiesta: " + quantity);
         }
 
         BigDecimal remainingToMove = quantity;
@@ -170,15 +173,16 @@ public class StockServiceImpl implements StockService {
     @Transactional
     public Stock moveStock(UUID stockId, UUID targetLocationId, BigDecimal quantity) {
         StockEntity sourceStock = stockRepository.findById(stockId)
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found: " + stockId));
+                .orElseThrow(() -> new IllegalArgumentException("Giacenza non trovata: " + stockId));
 
         WarehouseLocationEntity targetLocation = locationRepository.findById(targetLocationId)
-                .orElseThrow(() -> new IllegalArgumentException("Target Location not found: " + targetLocationId));
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Posizione destinazione non trovata: " + targetLocationId));
 
         // Logic:
         // 1. Check quantity availability
         if (sourceStock.getQuantity().compareTo(quantity) < 0) {
-            throw new IllegalArgumentException("Insufficient stock. Available: " + sourceStock.getQuantity());
+            throw new IllegalArgumentException("Giacenza insufficiente. Disponibile: " + sourceStock.getQuantity());
         }
 
         // 2. Decrement source
@@ -252,7 +256,7 @@ public class StockServiceImpl implements StockService {
     @Transactional(readOnly = true)
     public List<Stock> getStockByItem(String itemCode) {
         var item = itemRepository.findByInternalCode(itemCode)
-                .orElseThrow(() -> new IllegalArgumentException("Item not found: " + itemCode));
+                .orElseThrow(() -> new IllegalArgumentException("Articolo non trovato: " + itemCode));
 
         // Naive implementation: fetch all and filter. optimize later with repo method
         return stockRepository.findAll().stream()

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Typography, Box, Paper, Grid, TextField, Button, Alert, CircularProgress } from '@mui/material';
+import { Typography, Box, Paper, Grid, TextField, Button, Alert, CircularProgress, Snackbar } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { StockService } from '../services/StockService';
 import type { StockMoveRequest } from '../services/StockService';
@@ -14,15 +14,30 @@ export default function StockMove() {
     const [qty, setQty] = useState('');
     const [success, setSuccess] = useState(false);
 
+    const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
+
+    const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
+
+    const showMessage = (message: string, severity: 'success' | 'error' = 'success') => {
+        setSnackbar({ open: true, message, severity });
+    };
+
     const moveMutation = useMutation({
         mutationFn: StockService.moveStock,
         onSuccess: () => {
             setSuccess(true);
+            showMessage('Spostamento completato con successo', 'success');
             setTimeout(() => setSuccess(false), 3000);
             queryClient.invalidateQueries({ queryKey: ['inventory'] });
-            // Clear fields (keep source/target for rapid moves? maybe clear item)
             setItemCode('');
             setQty('');
+        },
+        onError: (error: any) => {
+            showMessage(error.response?.data?.message || 'Errore durante lo spostamento', 'error');
         }
     });
 
@@ -38,35 +53,35 @@ export default function StockMove() {
 
     return (
         <Box sx={{ maxWidth: 600, mx: 'auto' }}>
-            <Typography variant="h1" gutterBottom>Internal Stock Move</Typography>
+            <Typography variant="h1" gutterBottom>Movimento Interno Merce</Typography>
 
-            {success && <Alert severity="success" sx={{ mb: 2 }}>Move Confirmed!</Alert>}
+            {success && <Alert severity="success" sx={{ mb: 2 }}>Spostamento Confermato!</Alert>}
 
             <Paper sx={{ p: 4 }}>
                 <Grid container spacing={3}>
                     <Grid size={12}>
                         <LocationAutocomplete
-                            label="Source Location"
+                            label="Posizione Origine"
                             value={sourceLoc}
                             onChange={(code) => setSourceLoc(code || '')}
                         />
                     </Grid>
                     <Grid size={12}>
                         <ItemAutocomplete
-                            label="Item Code"
+                            label="Codice Articolo"
                             value={itemCode}
                             onChange={(code) => setItemCode(code || '')}
                         />
                     </Grid>
                     <Grid size={12}>
                         <TextField
-                            fullWidth label="Quantity" type="number"
+                            fullWidth label="Quantità" type="number"
                             value={qty} onChange={(e) => setQty(e.target.value)}
                         />
                     </Grid>
                     <Grid size={12}>
                         <LocationAutocomplete
-                            label="Target Location"
+                            label="Posizione Destinazione"
                             value={targetLoc}
                             onChange={(code) => setTargetLoc(code || '')}
                         />
@@ -77,11 +92,22 @@ export default function StockMove() {
                             onClick={handleMove}
                             disabled={moveMutation.isPending}
                         >
-                            {moveMutation.isPending ? <CircularProgress size={24} /> : 'Confirm Move'}
+                            {moveMutation.isPending ? <CircularProgress size={24} /> : 'Conferma Spostamento'}
                         </Button>
                     </Grid>
                 </Grid>
             </Paper>
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }

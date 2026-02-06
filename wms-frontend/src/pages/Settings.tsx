@@ -7,10 +7,10 @@ export default function Settings() {
 
     return (
         <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-            <Typography variant="h1" gutterBottom>Settings</Typography>
+            <Typography variant="h1" gutterBottom>Impostazioni</Typography>
 
             <Paper sx={{ p: 4, mb: 4 }}>
-                <Typography variant="h2" gutterBottom>Profile</Typography>
+                <Typography variant="h2" gutterBottom>Profilo</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
                     <Avatar
                         sx={{ width: 80, height: 80, fontSize: '2rem', bgcolor: 'secondary.main' }}
@@ -19,22 +19,22 @@ export default function Settings() {
                     </Avatar>
                     <Box>
                         <Typography variant="h3">{user?.username}</Typography>
-                        <Typography variant="body1" color="textSecondary">Role: {user?.role}</Typography>
+                        <Typography variant="body1" color="textSecondary">Ruolo: {user?.role}</Typography>
                     </Box>
                     <Box sx={{ ml: 'auto' }}>
-                        <Button variant="outlined" color="error" onClick={logout}>Logout</Button>
+                        <Button variant="outlined" color="error" onClick={logout}>Disconnetti</Button>
                     </Box>
                 </Box>
             </Paper>
 
             <Paper sx={{ p: 4 }}>
-                <Typography variant="h2" gutterBottom>Warehouse Configuration</Typography>
+                <Typography variant="h2" gutterBottom>Configurazione Magazzino</Typography>
                 <Grid container spacing={3}>
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField fullWidth label="Warehouse Name" defaultValue="Main Hub - Milan" />
+                        <TextField fullWidth label="Nome Magazzino" defaultValue="Main Hub - Milan" />
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField fullWidth label="Timezone" defaultValue="Europe/Rome" />
+                        <TextField fullWidth label="Fuso Orario" defaultValue="Europe/Rome" />
                     </Grid>
                     <Grid size={{ xs: 12 }}>
                         <Divider sx={{ my: 1 }} />

@@ -11,13 +11,13 @@ const drawerWidth = 240;
 
 const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-    { text: 'Warehouse Map', icon: <WarehouseIcon />, path: '/locations' },
-    { text: 'Items', icon: <InventoryIcon />, path: '/items' },
-    { text: 'Inbound', icon: <InputIcon />, path: '/inbound' },
-    { text: 'Outbound', icon: <OutputIcon />, path: '/outbound' },
-    { text: 'Internal Move', icon: <InventoryIcon />, path: '/move' },
-    { text: 'Inventory', icon: <InventoryIcon />, path: '/inventory' },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+    { text: 'Mappa Magazzino', icon: <WarehouseIcon />, path: '/locations' },
+    { text: 'Articoli', icon: <InventoryIcon />, path: '/items' },
+    { text: 'Ingresso Merce', icon: <InputIcon />, path: '/inbound' },
+    { text: 'Uscita Merce', icon: <OutputIcon />, path: '/outbound' },
+    { text: 'Movimento Interno', icon: <InventoryIcon />, path: '/move' },
+    { text: 'Inventario', icon: <InventoryIcon />, path: '/inventory' },
+    { text: 'Impostazioni', icon: <SettingsIcon />, path: '/settings' },
 ];
 
 export default function Sidebar() {

@@ -40,7 +40,7 @@ export default function Inbound() {
             setItemData(response.data);
             setActiveStep(1);
         } catch (err) {
-            setError('Item not found');
+            setError('Articolo non trovato');
         }
     };
 
@@ -66,7 +66,7 @@ export default function Inbound() {
             const loc = locations.find((l: Location) => l.code === locationCode);
 
             if (!loc) {
-                setError('Location Code not found');
+                setError('Codice Posizione non trovato');
                 return;
             }
 
@@ -95,30 +95,30 @@ export default function Inbound() {
 
     return (
         <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-            <Typography variant="h1" gutterBottom>Inbound Putaway</Typography>
+            <Typography variant="h1" gutterBottom>Ingresso Merce (Putaway)</Typography>
 
             <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-                <Step><StepLabel>Scan Item</StepLabel></Step>
-                <Step><StepLabel>Details & Location</StepLabel></Step>
-                <Step><StepLabel>Done</StepLabel></Step>
+                <Step><StepLabel>Scansiona Articolo</StepLabel></Step>
+                <Step><StepLabel>Dettagli & Posizione</StepLabel></Step>
+                <Step><StepLabel>Completato</StepLabel></Step>
             </Stepper>
 
             {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
             {activeStep === 0 && (
                 <Paper sx={{ p: 4, textAlign: 'center' }}>
-                    <Typography variant="h5" gutterBottom>Scan or Select Item</Typography>
+                    <Typography variant="h5" gutterBottom>Scansiona o Seleziona Articolo</Typography>
                     <Grid container spacing={2} justifyContent="center">
                         <Grid size={8}>
                             <ItemAutocomplete
                                 value={scanCode}
                                 onChange={(newCode) => handleInputChange(setScanCode, newCode || '')}
-                                label="Item Code / SKU"
+                                label="Codice Articolo / SKU"
                             />
                         </Grid>
                         <Grid size={4}>
                             <Button variant="contained" size="large" onClick={resolveItem} sx={{ mt: 1, height: '56px' }} disabled={!scanCode}>
-                                Find
+                                Cerca
                             </Button>
                         </Grid>
                     </Grid>
@@ -130,7 +130,7 @@ export default function Inbound() {
                     <Grid size={{ xs: 12, md: 6 }}>
                         <Card>
                             <CardContent>
-                                <Typography color="textSecondary">Item Details</Typography>
+                                <Typography color="textSecondary">Dettagli Articolo</Typography>
                                 <Typography variant="h4">{itemData.internalCode}</Typography>
                                 <Typography variant="body1">{itemData.description}</Typography>
                                 <Typography variant="caption">{itemData.category} - {itemData.unitOfMeasure}</Typography>
@@ -141,7 +141,7 @@ export default function Inbound() {
                         <Paper sx={{ p: 3 }}>
                             <TextField
                                 fullWidth
-                                label="Quantity"
+                                label="Quantità"
                                 type="number"
                                 value={quantity}
                                 onChange={(e) => handleInputChange(setQuantity, e.target.value)}
@@ -150,12 +150,12 @@ export default function Inbound() {
                             <LocationAutocomplete
                                 value={locationCode}
                                 onChange={(newCode) => handleInputChange(setLocationCode, newCode || '')}
-                                label="Target Location Code"
-                                helperText="Select from list"
+                                label="Codice Posizione Destinazione"
+                                helperText="Seleziona dalla lista"
                             />
                             <TextField
                                 fullWidth
-                                label="Batch (Optional)"
+                                label="Lotto (Opzionale)"
                                 value={batch}
                                 onChange={(e) => handleInputChange(setBatch, e.target.value)}
                                 sx={{ mb: 2, mt: 2 }}
@@ -168,7 +168,7 @@ export default function Inbound() {
                                 onClick={handleSubmit}
                                 disabled={confirmPutaway.isPending}
                             >
-                                {confirmPutaway.isPending ? <CircularProgress size={24} /> : 'Confirm Putaway'}
+                                {confirmPutaway.isPending ? <CircularProgress size={24} /> : 'Conferma Inserimento'}
                             </Button>
                         </Paper>
                     </Grid>
@@ -177,9 +177,9 @@ export default function Inbound() {
 
             {activeStep === 2 && (
                 <Paper sx={{ p: 5, textAlign: 'center' }}>
-                    <Typography variant="h4" color="success.main" gutterBottom>Success!</Typography>
-                    <Typography paragraph>Stock has been created successfully.</Typography>
-                    <Button variant="outlined" onClick={reset}>Scan Next Item</Button>
+                    <Typography variant="h4" color="success.main" gutterBottom>Successo!</Typography>
+                    <Typography paragraph>Giacenza creata con successo.</Typography>
+                    <Button variant="outlined" onClick={reset}>Scansiona Prossimo</Button>
                 </Paper>
             )}
         </Box>

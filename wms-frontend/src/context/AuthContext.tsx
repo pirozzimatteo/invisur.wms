@@ -10,7 +10,7 @@ interface User {
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
-    login: (username: string) => void;
+    login: (username: string, password?: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -27,20 +27,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    const login = (username: string) => {
-        // Mock Login Logic
-        const mockUser: User = {
-            id: 'u1',
-            username: username || 'admin',
-            role: 'ADMIN'
-        };
-        setUser(mockUser);
-        localStorage.setItem('wms_user', JSON.stringify(mockUser));
+    const login = async (username: string, password?: string) => {
+        try {
+            const response = await fetch('/api/v1/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!response.ok) {
+                throw new Error('Login failed');
+            }
+
+            const data = await response.json();
+            const token = data.token;
+
+            // For now, decode token or just set simple user object
+            // Ideally use jwt-decode to get role/id
+            const mockUser: User = {
+                id: 'u-real', // extracted from token in future
+                username: username,
+                role: 'ADMIN' // extracted from token in future
+            };
+
+            setUser(mockUser);
+            localStorage.setItem('wms_user', JSON.stringify(mockUser));
+            localStorage.setItem('wms_token', token);
+        } catch (error) {
+            console.error('Login error:', error);
+            throw error;
+        }
     };
 
     const logout = () => {
         setUser(null);
         localStorage.removeItem('wms_user');
+        localStorage.removeItem('wms_token');
     };
 
     return (
